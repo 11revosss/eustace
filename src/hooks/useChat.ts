@@ -8,7 +8,7 @@ export interface ChatMessage {
   sender_id: string;
   text_content: string | null;
   media_url: string | null;
-  media_type: 'image' | 'video' | null;
+  media_type: 'image' | 'video' | 'document' | null;
   created_at: string;
   profiles?: {
     username: string;
@@ -165,7 +165,13 @@ export function useChat(friendId: string) {
 
       const { data } = supabase.storage.from('chat-media').getPublicUrl(filePath);
       mediaUrl = data.publicUrl;
-      mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+      if (file.type.startsWith('video/')) {
+        mediaType = 'video';
+      } else if (file.type.startsWith('image/')) {
+        mediaType = 'image';
+      } else {
+        mediaType = 'document';
+      }
     }
 
     const { error: insertError } = await supabase

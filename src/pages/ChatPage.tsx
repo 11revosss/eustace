@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useChat } from '../hooks/useChat';
 import { supabase } from '../lib/supabase';
-import { Loader2, ArrowLeft, Send, Paperclip, Image as ImageIcon, X } from 'lucide-react';
+import { Loader2, ArrowLeft, Send, Paperclip, Image as ImageIcon, X, File as FileIcon } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import { SmoothInput } from '../components/ui/SmoothInput';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -51,8 +52,9 @@ export function ChatPage() {
       await sendMessage(text.trim() ? text.trim() : null, file);
       setText('');
       setFile(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to send message", err);
+      toast.error(err.message || 'Failed to send message. Please try again.');
     } finally {
       setIsSending(false);
     }
@@ -148,6 +150,11 @@ export function ChatPage() {
                       <div className="rounded-lg overflow-hidden max-w-sm">
                         {msg.media_type === 'video' ? (
                           <video src={msg.media_url} controls className="max-w-full max-h-64 object-contain" />
+                        ) : msg.media_type === 'document' ? (
+                          <a href={msg.media_url} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 bg-background/20 hover:bg-background/30 rounded-lg transition-colors border border-border/10">
+                            <FileIcon size={24} className={isMe ? "text-background/80" : "text-accent"} />
+                            <span className="text-sm font-medium underline-offset-2 hover:underline truncate max-w-[200px]">View Document</span>
+                          </a>
                         ) : (
                           <a href={msg.media_url} target="_blank" rel="noreferrer">
                             <img src={msg.media_url} alt="Attachment" className="max-w-full max-h-64 object-cover hover:opacity-90 transition-opacity" />
@@ -204,7 +211,7 @@ export function ChatPage() {
               type="file" 
               className="hidden" 
               ref={fileInputRef}
-              accept="image/*,video/*"
+              accept="*/*"
               onChange={handleFileChange}
             />
             
