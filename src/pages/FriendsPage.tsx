@@ -1,9 +1,9 @@
 import { SmoothInput } from '../components/ui/SmoothInput';
 /* eslint-disable react-compiler/react-compiler, react/purity, react-hooks/exhaustive-deps, react/set-state-in-effect */
 import { useState, useEffect } from 'react';
-import { Loader2, Check, X, Search, UserPlus, Flame, ArrowRight } from 'lucide-react';
+import { Loader2, Check, X, Search, UserPlus, Flame, ArrowRight, MessageSquare } from 'lucide-react';
 import { useDebounce } from '../hooks/useDebounce';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
@@ -26,6 +26,7 @@ const itemVariants: Variants = {
 };
 
 export function FriendsPage() {
+  const navigate = useNavigate();
   const {
     user,
     incomingRequests,
@@ -285,9 +286,22 @@ export function FriendsPage() {
                         )}
                       </div>
                       
-                      <span className="text-[9px] md:text-[10px] font-bold text-textMuted group-hover:text-textMain tracking-widest uppercase transition-colors flex items-center gap-1">
-                        Profile <ArrowRight size={12} className="opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-                      </span>
+                      <div className="flex items-center gap-2">
+                          <button 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              navigate(`/chat/${friend.profiles.id}`);
+                            }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-background hover:bg-accent border border-border/20 hover:border-accent text-textMuted hover:text-white rounded-lg transition-all"
+                          >
+                            <MessageSquare size={12} />
+                            <span className="text-[9px] font-bold uppercase tracking-widest">Chat</span>
+                          </button>
+                          <span className="text-[9px] md:text-[10px] font-bold text-textMuted group-hover:text-textMain tracking-widest uppercase transition-colors flex items-center gap-1">
+                            Profile <ArrowRight size={12} className="opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+                          </span>
+                        </div>
                     </div>
                   </Link>
                 );
