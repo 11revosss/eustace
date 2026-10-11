@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { PWAReloadPrompt } from './components/PWAReloadPrompt';
 import { InstallPrompt } from './components/InstallPrompt';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { useGlobalShortcuts } from './hooks/useGlobalShortcuts';
 import { Loader2 } from 'lucide-react';
 
 function safeLazy<T extends ComponentType<any>>(importFn: () => Promise<{ default: T }>) {
@@ -38,6 +39,8 @@ const AnalyticsPage = safeLazy(() => import('./pages/AnalyticsPage').then(m => (
 const NotesPage = safeLazy(() => import('./pages/NotesPage').then(m => ({ default: m.NotesPage })));
 const NoteEditorPage = safeLazy(() => import('./pages/NoteEditorPage').then(m => ({ default: m.NoteEditorPage })));
 const FriendsPage = safeLazy(() => import('./pages/FriendsPage').then(m => ({ default: m.FriendsPage })));
+const ChatPage = safeLazy(() => import('./pages/ChatPage').then(m => ({ default: m.ChatPage })));
+const TranscendPage = safeLazy(() => import('./pages/TranscendPage').then(m => ({ default: m.TranscendPage })))
 const ProfilePage = safeLazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const PublicProfilePage = safeLazy(() => import('./pages/PublicProfilePage').then(m => ({ default: m.PublicProfilePage })));
 const SettingsPage = safeLazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
@@ -53,6 +56,7 @@ function RouteFallback() {
 }
 
 function App() {
+  useGlobalShortcuts();
   return (
     <ErrorBoundary>
       <Toaster position="bottom-center" toastOptions={{
@@ -76,11 +80,14 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/tasks" element={<TasksPage />} />
-            <Route path="/notes" element={<NotesPage />} />
-            <Route path="/notes/:id" element={<NoteEditorPage />} />
+            <Route path="/notes" element={<NotesPage />}>
+              <Route path=":id" element={<NoteEditorPage />} />
+            </Route>
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/friends" element={<FriendsPage />} />
+            <Route path="/chat/:friendId" element={<ChatPage />} />
+            <Route path="/transcend" element={<TranscendPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
 

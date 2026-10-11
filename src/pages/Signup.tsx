@@ -1,3 +1,4 @@
+import { SmoothInput } from '../components/ui/SmoothInput';
 import { useState } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -22,6 +23,13 @@ export function Signup() {
   const handleGoogleSignup = async () => {
     setGoogleLoading(true);
     setError('');
+
+    if (import.meta.env.VITE_SUPABASE_URL === undefined || import.meta.env.VITE_SUPABASE_URL.trim() === '') {
+      setError('Configuration Error: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are missing in your .env.local file. Please add your real Supabase credentials to sign up.');
+      setGoogleLoading(false);
+      return;
+    }
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -29,7 +37,11 @@ export function Signup() {
       }
     });
     if (error) {
-      setError(error.message);
+      if (error.message === 'Failed to fetch') {
+        setError('Network Error: Failed to fetch. Please verify your VITE_SUPABASE_URL in .env.local is correct.');
+      } else {
+        setError(error.message);
+      }
       setGoogleLoading(false);
     }
   };
@@ -40,6 +52,12 @@ export function Signup() {
     setError('');
 
     const cleanUsername = username.toLowerCase().trim();
+
+    if (import.meta.env.VITE_SUPABASE_URL === undefined || import.meta.env.VITE_SUPABASE_URL.trim() === '') {
+      setError('Configuration Error: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are missing in your .env.local file. Please add your real Supabase credentials to sign up.');
+      setLoading(false);
+      return;
+    }
 
     if (password.length < 8) {
       setError('Password must be at least 8 characters long.');
@@ -91,7 +109,11 @@ export function Signup() {
     });
 
     if (authError) {
-      setError(authError.message);
+      if (authError.message === 'Failed to fetch') {
+        setError('Network Error: Failed to fetch. Please verify your VITE_SUPABASE_URL in .env.local is correct.');
+      } else {
+        setError(authError.message);
+      }
     } else if (authData.user) {
       if (authData.session) {
         // Upsert profile row immediately when session is active
@@ -195,19 +217,19 @@ export function Signup() {
         <form onSubmit={handleSignup} className="flex flex-col gap-4">
           <div>
             <label className="block text-xs font-semibold tracking-wider text-textMuted mb-1.5 uppercase">Name</label>
-            <input type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:border-accent/50 outline-none transition-colors" />
+            <SmoothInput type="text" value={name} onChange={e => setName(e.target.value)} required className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:border-accent/50 outline-none transition-colors" />
           </div>
           <div>
             <label className="block text-xs font-semibold tracking-wider text-textMuted mb-1.5 uppercase">Username</label>
-            <input type="text" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} required className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:border-accent/50 outline-none transition-colors" />
+            <SmoothInput type="text" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} required className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:border-accent/50 outline-none transition-colors" />
           </div>
           <div>
             <label className="block text-xs font-semibold tracking-wider text-textMuted mb-1.5 uppercase">Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:border-accent/50 outline-none transition-colors" />
+            <SmoothInput type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:border-accent/50 outline-none transition-colors" />
           </div>
           <div>
             <label className="block text-xs font-semibold tracking-wider text-textMuted mb-1.5 uppercase">Password</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:border-accent/50 outline-none transition-colors" />
+            <SmoothInput type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:border-accent/50 outline-none transition-colors" />
           </div>
 
           <button type="submit" disabled={loading || googleLoading} className="w-full bg-textMain text-background hover:bg-white font-semibold py-2.5 rounded-xl mt-4 transition-colors flex justify-center items-center h-11 disabled:opacity-50 disabled:hover:bg-textMain">
